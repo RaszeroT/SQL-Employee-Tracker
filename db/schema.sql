@@ -7,24 +7,24 @@ USE companyEmployee_db;
 
 -- departments
 CREATE TABLE departments (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    department_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     department VARCHAR(30) NOT NULL
 );
 
 -- roles
 CREATE TABLE roles (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    role_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(30) NOT NULL,
     salary DECIMAL NOT NULL,
     department_id INT,
     FOREIGN KEY (department_id)
-    REFERENCES departments(id)
+    REFERENCES departments(department_id)
     ON DELETE SET NULL
 );
 
 -- employees
 CREATE TABLE employees (
-     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+     employee_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
      role_id INT,
      first_name VARCHAR(30) NOT NULL,
      last_name VARCHAR(30) NOT NULL,
