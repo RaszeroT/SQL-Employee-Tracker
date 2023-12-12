@@ -11,7 +11,12 @@ function start() {
       type: "list",
       name: "action",
       message: "What would you like to do?",
-      choices: ["View Departments", "View Roles", "View Employees"],
+      choices: [
+        "View Departments",
+        "View Roles",
+        "View Employees",
+        "Create New Department",
+      ],
     })
     .then((answer) => {
       switch (answer.action) {
@@ -24,14 +29,21 @@ function start() {
         case "View Employees":
           viewEmployees();
           break;
+        case "Create New Department":
+          createDepartment();
+          break;
       }
     });
 }
 
 // WHEN I choose to view all departments
 // THEN I am presented with a formatted table showing department names and department ids
+
 // logic:
 //create a function that allows you to query only department name and id
+
+// name -- check
+// id -- check
 
 function viewDepartments() {
   const query = `SELECT * FROM departments`;
@@ -45,8 +57,10 @@ function viewDepartments() {
 
 // WHEN I choose to view all roles
 // THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
+
 //logic:
 // create a function that shows all roles
+
 //job title -- check
 //role id -- check
 //department -- check
@@ -107,6 +121,38 @@ function viewEmployees() {
 
 // WHEN I choose to add a department
 // THEN I am prompted to enter the name of the department and that department is added to the database
+
+//logic
+// create a function that will allow user to add a department to the database
+
+//Add to start() inquirer
+
+function createDepartment() {
+  // set inquirer to prompt for name
+  inquirer
+    .prompt({
+      type: "input",
+      name: "name",
+      message: "What is the name of the new department?",
+    })
+    //insert into seeds.sql
+    .then((answer) => {
+      console.log(answer.name);
+      //answer.name is working 
+      //query to insert name into department seeds
+      const query = `
+      INSERT INTO departments (department_name)
+      VALUE ('${answer.name}')`;
+      con.query(query, (err, res) => {
+        if (err) { 
+          throw err
+        } else {
+          console.log(`Department: ${answer.name} has been created successfully!`)
+        }
+        start();
+      })
+    });
+}
 
 // WHEN I choose to add a role
 // THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
