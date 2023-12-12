@@ -1,5 +1,5 @@
 -- DEPARTMENTS
-INSERT INTO departments (department)
+INSERT INTO departments (department_name)
 VALUE ('Engineering'),
 ('Finance'),
 ('Legal');

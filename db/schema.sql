@@ -8,7 +8,7 @@ USE companyEmployee_db;
 -- departments
 CREATE TABLE departments (
     department_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    department VARCHAR(30) NOT NULL
+    department_name VARCHAR(30) NOT NULL
 );
 
 -- roles
