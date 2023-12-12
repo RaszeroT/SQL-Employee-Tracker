@@ -1,10 +1,8 @@
 // require packages
 const inquirer = require("inquirer");
-const mysql = require("mysql2");
 
 // create connection
-const con = require("./config/connection");
-
+const con = require("./config/connection.js");
 
 // prompt user using inquirer... start small
 function start() {
@@ -17,28 +15,28 @@ function start() {
     
 })
 .then(answer => {
-    console.log('answer:', answer.action, '**********************************')
-    // viewDepartments();
+    // console.log('answer:', answer.action, '**********************************')
+    viewDepartments();
 })
 }
 
 
 // WHEN I choose to view all departments
 // THEN I am presented with a formatted table showing department names and department ids
-
 // logic:
 //create a function that allows you to query only department name and id
 
 function viewDepartments() {
   const query = `SELECT * FROM departments`;
   con.query(query, (err, res) => {
-      console.log(res);
-    })
-  };
+    console.log(res)
+    console.log(err)
+}
+  )};
 
 
-start();
-viewDepartments();
+// viewDepartments()
+
 // WHEN I choose to view all departments
 // THEN I am presented with a formatted table showing department names and department ids
 
@@ -62,3 +60,6 @@ viewDepartments();
 
 // WHEN I choose to update an employee role
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database
+
+// Start
+start();
