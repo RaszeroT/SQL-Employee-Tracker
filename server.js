@@ -17,6 +17,7 @@ function start() {
         "View Employees",
         "Create New Department",
         "Create New Role",
+        "Add a New Employee",
       ],
     })
     .then((answer) => {
@@ -35,6 +36,9 @@ function start() {
           break;
         case "Create New Role":
           createRole();
+          break;
+        case "Add a New Employee":
+          addEmployee();
           break;
       }
     });
@@ -216,6 +220,50 @@ function createRole() {
 // WHEN I choose to add an employee
 // THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 
+//create a function that that allows user to add an employee
+// add to start() inquirer
+// first name -- check
+// last name -- check
+// role -- get list of available roles
+// manager -- get list of available employees to select as manager
+// restart function
+
+function addEmployee() {
+  // retrieve all roles
+  const role = `SELECT title FROM roles`;
+  con.query(role, (err, res) => {
+    console.table(res);
+    console.log(err);
+  })
+  // retrieve possible managers
+  const manager = `SELECT CONCAT(first_name, ' ', last_name) AS manager_name FROM employees`;
+  con.query(manager, (err,res) => {
+    console.table(res)
+    console.log(err)
+  })
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'first-name',
+      message: 'Please enter first name',
+    },
+    {
+      type: 'input',
+      name: 'last-name',
+      message: 'Please enter last name',
+    },
+    {
+      type: 'list',
+      name: 'role',
+      message: 'Please select desired role',
+      choices: role,
+      
+    }
+  ])
+  .then((answer) => {
+    console.log(answer.role)
+  })
+}
 
 
 // WHEN I choose to update an employee role
