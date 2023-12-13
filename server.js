@@ -229,42 +229,84 @@ function createRole() {
 // restart function
 
 function addEmployee() {
-  // retrieve all roles
-  const role = `SELECT title FROM roles`;
-  con.query(role, (err, res) => {
-    console.table(res);
-    console.log(err);
-  })
-  // retrieve possible managers
-  const manager = `SELECT CONCAT(first_name, ' ', last_name) AS manager_name FROM employees`;
-  con.query(manager, (err,res) => {
-    console.table(res)
-    console.log(err)
-  })
-  inquirer.prompt([
-    {
-      type: 'input',
-      name: 'first-name',
-      message: 'Please enter first name',
-    },
-    {
-      type: 'input',
-      name: 'last-name',
-      message: 'Please enter last name',
-    },
-    {
-      type: 'list',
-      name: 'role',
-      message: 'Please select desired role',
-      choices: role,
-      
+  //pull all roles from database
+  const query = `SELECT id, title FROM roles`;
+  con.query(query, (err, res) => {
+    if (err) {
+      console.error(err);
+      return;
     }
-  ])
-  .then((answer) => {
-    console.log(answer.role)
-  })
+    const roles = res.map(({ id, title }) => ({
+      name: title,
+      value: id,
+    }));
+    // pull possible managers
+    const query = `
+  SELECT id,
+  CONCAT(first_name, ' ', last_name) AS name
+  FROM employees`;
+    con.query(query, (err, res) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      const managers = res.map(({id, name}) => ({
+        name, 
+        value: id,
+      }));
+      // prompt
+      inquirer.prompt([
+        {
+          type: 'input',
+          name: 'firstName',
+          message: 'Enter employee first name:',
+        },
+        {
+          type: 'input',
+          name: 'lastName',
+          message: 'Enter employee last name:',
+        },
+        {
+          type: 'list',
+          name: 'roleId',
+          message: 'Select new employee role:',
+          choices: roles,
+        },
+        {
+          type: 'list',
+          name: 'managerId',
+          message: 'Select new employees manager',
+          choices: [
+            {name: 'none', value: null}, ...managers,
+          ],
+        }
+      ])
+      .then((answer) => {
+        // insert into employee db
+        const insertEmployee = `
+        INSERT INTO employees (first_name, last_name, role_id, manager_id) 
+        VALUES (?, ?, ?, ?)`;
+        const values = [
+          answer.firstName,
+          answer.lastName,
+          answer.roleId,
+          answer.managerId,
+        ];
+        con.query(insertEmployee, values, (err, res) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          console.log(`Employee added Successfully`);
+          start();
+        })
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    })
+  });
 }
-
 
 // WHEN I choose to update an employee role
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database
