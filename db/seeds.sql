@@ -1,5 +1,5 @@
 -- DEPARTMENTS
-INSERT INTO departments (department)
+INSERT INTO departments (department_name)
 VALUE ('Engineering'),
 ('Finance'),
 ('Legal');
@@ -17,15 +17,15 @@ VALUE (1, 'Lead Engineer', 150000),
 
 -- EMPLOYEES
 INSERT INTO employees (role_id, first_name, last_name, manager_id)
-VALUE (1, 'Melissa', 'Ortiz', null), -- manager 1
+VALUE (1, 'Melissa', 'Ortiz', 0), -- manager 1
 (2, 'Kevin', 'Reese', 1),
 (2, 'Linda', 'Boyer', 1),
 (2, 'Warren', 'Tapia', 1),
-(3, 'Karen', 'Hale', null), -- manager 5
+(3, 'Karen', 'Hale', 0), -- manager 5
 (4, 'Ira', 'McCollough', 5),
 (4, 'Allie', 'Hoover', 5),
 (4, 'Westly', 'Stafford', 5),
-(5, 'Whitney', 'Waller', null), -- manager 9
+(5, 'Whitney', 'Waller', 0), -- manager 9
 (6, 'Koda', 'House', 9),
 (6, 'Ella', 'Drake', 9),
 (6, 'Alijah', 'Zhang', 9);
