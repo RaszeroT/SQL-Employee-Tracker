@@ -250,66 +250,91 @@ function addEmployee() {
         console.log(err);
         return;
       }
-      const managers = res.map(({id, name}) => ({
-        name, 
+      const managers = res.map(({ id, name }) => ({
+        name,
         value: id,
       }));
       // prompt
-      inquirer.prompt([
-        {
-          type: 'input',
-          name: 'firstName',
-          message: 'Enter employee first name:',
-        },
-        {
-          type: 'input',
-          name: 'lastName',
-          message: 'Enter employee last name:',
-        },
-        {
-          type: 'list',
-          name: 'roleId',
-          message: 'Select new employee role:',
-          choices: roles,
-        },
-        {
-          type: 'list',
-          name: 'managerId',
-          message: 'Select new employees manager',
-          choices: [
-            {name: 'none', value: null}, ...managers,
-          ],
-        }
-      ])
-      .then((answer) => {
-        // insert into employee db
-        const insertEmployee = `
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "firstName",
+            message: "Enter employee first name:",
+          },
+          {
+            type: "input",
+            name: "lastName",
+            message: "Enter employee last name:",
+          },
+          {
+            type: "list",
+            name: "roleId",
+            message: "Select new employee role:",
+            choices: roles,
+          },
+          {
+            type: "list",
+            name: "managerId",
+            message: "Select new employees manager",
+            choices: [{ name: "none", value: null }, ...managers],
+          },
+        ])
+        .then((answer) => {
+          // insert into employee db
+          const insertEmployee = `
         INSERT INTO employees (first_name, last_name, role_id, manager_id) 
         VALUES (?, ?, ?, ?)`;
-        const values = [
-          answer.firstName,
-          answer.lastName,
-          answer.roleId,
-          answer.managerId,
-        ];
-        con.query(insertEmployee, values, (err, res) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          console.log(`Employee added Successfully`);
-          start();
+          const values = [
+            answer.firstName,
+            answer.lastName,
+            answer.roleId,
+            answer.managerId,
+          ];
+          con.query(insertEmployee, values, (err, res) => {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            console.log(`Employee added Successfully`);
+            start();
+          });
         })
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-    })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
   });
 }
 
 // WHEN I choose to update an employee role
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database
+
+// create a function that will allow the user to update an existing employee
+
+// add to start function
+
+// set query to get:
+// employee id
+// employee first name
+//employee last name
+// role title
+// check error
+
+// set query to get all from roles
+//check error
+
+//prompt
+//employees
+// roles
+
+//then
+// find employees
+// find roles
+
+//update
+
+//restart application
 
 // Start
 start();
