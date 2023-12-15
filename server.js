@@ -4,7 +4,7 @@ const inquirer = require("inquirer");
 // create connection
 const con = require("./config/connection.js");
 
-// prompt user using inquirer... start small
+// prompt user using inquirer
 function start() {
   inquirer
     .prompt({
@@ -18,6 +18,7 @@ function start() {
         "Create New Department",
         "Create New Role",
         "Add a New Employee",
+        "Update an Existing Employee",
       ],
     })
     .then((answer) => {
@@ -40,19 +41,14 @@ function start() {
         case "Add a New Employee":
           addEmployee();
           break;
+        case "Update an Existing Employee":
+          updateEmployee();
+          break;
       }
     });
 }
 
-// WHEN I choose to view all departments
-// THEN I am presented with a formatted table showing department names and department ids
-
-// logic:
-//create a function that allows you to query only department name and id
-
-// name -- check
-// id -- check
-
+// This function will all the user to view all departments
 function viewDepartments() {
   const query = `SELECT * FROM departments`;
   con.query(query, (err, res) => {
@@ -63,21 +59,11 @@ function viewDepartments() {
   });
 }
 
-// WHEN I choose to view all roles
-// THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
-
-//logic:
-// create a function that shows all roles
-
-//job title -- check
-//role id -- check
-//department -- check
-//salary -- check
-
+// this function will allow the user to view all roles
 function viewRoles() {
-  const query = `SELECT r.role_id, r.title, r.salary, d.department_name
+  const query = `SELECT r.id, r.title, r.salary, d.department_name
   FROM roles r
-  JOIN departments d ON r.department_id = d.department_id`;
+  JOIN departments d ON r.department_id = d.id`;
   con.query(query, (err, res) => {
     if (err) throw err;
     console.table(res);
@@ -86,20 +72,7 @@ function viewRoles() {
   });
 }
 
-// WHEN I choose to view all employees
-// THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-
-// logic
-//create a function that shows all employees in a formatted table
-
-//employee id -- check
-//first name -- check
-//last name -- check
-// job title -- check
-// department -- check
-// salary -- check
-// manager -- check
-
+// this function will allow the user to view all employees
 function viewEmployees() {
   const query = `
   SELECT 
@@ -122,25 +95,15 @@ function viewEmployees() {
   });
 }
 
-// WHEN I choose to add a department
-// THEN I am prompted to enter the name of the department and that department is added to the database
-
-//logic
-// create a function that will allow user to add a department to the database
-
-//Add to start() inquirer -- check
-
+// this function will allow the user to view all departments
 function createDepartment() {
-  // set inquirer to prompt for name --check
   inquirer
     .prompt({
       type: "input",
       name: "department",
       message: "What is the name of the new department?",
     })
-    //insert into seeds.sql --check
     .then((answer) => {
-      console.log(answer.department);
       const query = `
       INSERT INTO departments (department_name)
       VALUE ('${answer.department}')`;
@@ -157,26 +120,13 @@ function createDepartment() {
     });
 }
 
-// WHEN I choose to add a role
-// THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
-
-// logic
-// create a function that allows user to create a new role
-// name
-// salary
-// and the department role is in.
-
-//add to start() inquirer -- check
-// set inquirer to prompt for roll name
-// insert into seeds
+// this function will allow the user to create a new role
 function createRole() {
   const query = `SELECT * FROM departments`;
   con.query(query, (err, res) => {
     if (err) throw err;
-    console.log(res);
     inquirer
       .prompt([
-        // TODO: Why did this prompt have to be passed as a array?
         {
           type: "input",
           name: "title",
@@ -212,22 +162,12 @@ function createRole() {
             Added role "${answer.title}" with a salary of ${answer.salary} to the department ${answer.department}`);
           }
         );
+        start();
       });
   });
-  start();
 }
 
-// WHEN I choose to add an employee
-// THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-
-//create a function that that allows user to add an employee
-// add to start() inquirer
-// first name -- check
-// last name -- check
-// role -- get list of available roles
-// manager -- get list of available employees to select as manager
-// restart function
-
+//  this function allows the user to add a new employee
 function addEmployee() {
   //pull all roles from database
   const query = `SELECT id, title FROM roles`;
@@ -240,7 +180,6 @@ function addEmployee() {
       name: title,
       value: id,
     }));
-    // pull possible managers
     const query = `
   SELECT id,
   CONCAT(first_name, ' ', last_name) AS name
@@ -254,7 +193,6 @@ function addEmployee() {
         name,
         value: id,
       }));
-      // prompt
       inquirer
         .prompt([
           {
@@ -281,7 +219,6 @@ function addEmployee() {
           },
         ])
         .then((answer) => {
-          // insert into employee db
           const insertEmployee = `
         INSERT INTO employees (first_name, last_name, role_id, manager_id) 
         VALUES (?, ?, ?, ?)`;
@@ -307,34 +244,53 @@ function addEmployee() {
   });
 }
 
-// WHEN I choose to update an employee role
-// THEN I am prompted to select an employee to update and their new role and this information is updated in the database
+// this function allows the user to update 
+function updateEmployee() {
+  const queryEmployees =
+    "SELECT e.id, e.first_name, e.last_name, r.title FROM employees e LEFT JOIN roles r ON e.role_id = r.id";
+  const queryRoles = "SELECT * FROM roles";
+  con.query(queryEmployees, (err, resEmployees) => {
+    if (err) throw err;
+    con.query(queryRoles, (err, resRoles) => {
+      if (err) throw err;
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "employee",
+            message: "Select the employee to update:",
+            choices: resEmployees.map(
+              (employee) => `${employee.first_name} ${employee.last_name}`
+            ),
+          },
+          {
+            type: "list",
+            name: "role",
+            message: "Select the new role:",
+            choices: resRoles.map((role) => role.title),
+          },
+        ])
+        .then((answers) => {
+          const employee = resEmployees.find(
+            (employee) =>
+              `${employee.first_name} ${employee.last_name}` ===
+              answers.employee
+          );
+          const role = resRoles.find((role) => role.title === answers.role);
+          const query = "UPDATE employees SET role_id = ? WHERE id = ?";
+          con.query(query, [role.id, employee.id], (err, res) => {
+            if (err) throw err;
+            console.log(
+              `Updated ${employee.first_name} ${employee.last_name}'s role to ${role.title} in the database!`
+            );
+            // restart the application
+            start();
+          });
+        });
+    });
+  });
+}
 
-// create a function that will allow the user to update an existing employee
-
-// add to start function
-
-// set query to get:
-// employee id
-// employee first name
-//employee last name
-// role title
-// check error
-
-// set query to get all from roles
-//check error
-
-//prompt
-//employees
-// roles
-
-//then
-// find employees
-// find roles
-
-//update
-
-//restart application
 
 // Start
 start();
